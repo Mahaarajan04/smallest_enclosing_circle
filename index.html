@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Welzl's Randomized SEC — Interactive</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg2: #161b26;
+  --border: #21262d;
+  --text: #cdd6f4;
+  --text-muted: #6c7086;
+  --text-dim: #7a8a9a;
+  --accent: #89b4fa;
+  --accent-bg: #1e3a5f;
+  --accent-border: #3a6090;
+  --green: #a6e3a1;
+  --green-bg: #152515;
+  --green-border: #1e5020;
+  --red: #f38ba8;
+  --red-bg: #2a1515;
+  --red-border: #5a2020;
+  --yellow: #f9e2af;
+  --yellow-bg: #2a2515;
+  --yellow-border: #5a4a10;
+  --gold: #f5c542;
+  --canvas-bg: #161b26;
+  --card-hover: #1e2535;
+  --dot-default: #4a5a6a;
+  --dot-pending: #2a3040;
+  --input-bg: #1e2535;
+  --input-border: #2d3a50;
+  --bar-bg: #21262d;
+  --bar-rand-start: #1e3a5f;
+  --bar-rand-end: #4a7ab0;
+  --bar-adv-start: #5a2020;
+  --bar-adv-end: #b04040;
+  --prog-start: #1e3a5f;
+  --prog-end: #89b4fa;
+  --complete-bg: #1e2a1e;
+  --complete-border: #2e5a2e;
+  --init-bg: #1a2535;
+  --init-border: #1e3a5f;
+  --circle-fill-alpha: 0.06;
+  --pulse-alpha: 0.31;
+  --support-label: #f5c542cc;
+}
+
+[data-theme="light"] {
+  --bg: #f4f1ec;
+  --bg2: #ffffff;
+  --border: #d8d3cb;
+  --text: #2c2825;
+  --text-muted: #8a8279;
+  --text-dim: #9a928a;
+  --accent: #3a6fb5;
+  --accent-bg: #dde8f5;
+  --accent-border: #a8c4e0;
+  --green: #2d7a3a;
+  --green-bg: #e2f3e5;
+  --green-border: #a8d5ae;
+  --red: #c0392b;
+  --red-bg: #fbe8e6;
+  --red-border: #e6b0aa;
+  --yellow: #b07d10;
+  --yellow-bg: #fdf3dc;
+  --yellow-border: #e0c878;
+  --gold: #c8920a;
+  --canvas-bg: #faf8f5;
+  --card-hover: #f0ece6;
+  --dot-default: #a09888;
+  --dot-pending: #d8d3cb;
+  --input-bg: #f0ece6;
+  --input-border: #d8d3cb;
+  --bar-bg: #e8e3db;
+  --bar-rand-start: #a8c4e0;
+  --bar-rand-end: #3a6fb5;
+  --bar-adv-start: #e6b0aa;
+  --bar-adv-end: #c0392b;
+  --prog-start: #a8c4e0;
+  --prog-end: #3a6fb5;
+  --complete-bg: #e2f3e5;
+  --complete-border: #a8d5ae;
+  --init-bg: #dde8f5;
+  --init-border: #a8c4e0;
+  --circle-fill-alpha: 0.10;
+  --pulse-alpha: 0.35;
+  --support-label: #9a7200;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 40px;
+  gap: 16px;
+  transition: background 0.35s, color 0.35s;
+}
+
+h1 {
+  font-size: 1.5rem;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+  font-weight: 700;
+}
+.subtitle { font-size: 0.82rem; color: var(--text-muted); margin-top: -10px; }
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 808px;
+}
+.top-bar-left { display: flex; align-items: center; gap: 10px; }
+.top-bar-right { margin-left: auto; }
+
+.theme-toggle {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  width: 38px; height: 38px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+.theme-toggle:hover { background: var(--card-hover); }
+
+.n-input-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 5px 10px;
+  transition: background 0.35s, border-color 0.35s;
+}
+.n-input-group label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+.n-input-group input[type=number] {
+  width: 62px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 5px 8px;
+  text-align: center;
+  outline: none;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.n-input-group input[type=number]:focus {
+  border-color: var(--accent);
+}
+/* hide spinners */
+.n-input-group input[type=number]::-webkit-inner-spin-button,
+.n-input-group input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+.n-input-group input[type=number] { -moz-appearance: textfield; }
+
+.btn-small {
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s, opacity 0.15s;
+  white-space: nowrap;
+}
+.btn-small:hover { opacity: 0.85; }
+
+.main { display: flex; gap: 18px; align-items: flex-start; }
+
+canvas {
+  border-radius: 14px;
+  background: var(--canvas-bg);
+  border: 1px solid var(--border);
+  display: block;
+  transition: background 0.35s, border-color 0.35s;
+}
+
+.panel {
+  width: 270px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mode-toggle {
+  display: flex;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+  transition: background 0.35s, border-color 0.35s;
+}
+.mode-btn {
+  flex: 1;
+  padding: 7px 6px;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: all 0.2s;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+}
+.mode-btn.active { background: var(--accent-bg); color: var(--accent); }
+
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 14px;
+  transition: background 0.35s, border-color 0.35s;
+}
+.card-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 7px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.event-box {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  font-size: 0.83rem;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-radius: 8px;
+  gap: 8px;
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
+}
+.ev-init     { background: var(--init-bg); color: var(--accent); border: 1px solid var(--init-border); }
+.ev-consider { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+.ev-inside   { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.ev-outside  { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.ev-complete { background: var(--complete-bg); color: var(--green); border: 1px solid var(--complete-border); }
+
+.stats { display: flex; flex-direction: column; gap: 7px; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; }
+.stat-lbl { color: var(--text-dim); }
+.stat-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+}
+.stat-val.red   { color: var(--red); }
+.stat-val.green { color: var(--green); }
+.stat-val.blue  { color: var(--accent); }
+
+.prog-bar { height: 5px; background: var(--bar-bg); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--prog-start), var(--prog-end)); border-radius: 3px; transition: width 0.2s; }
+
+.legend { display: flex; flex-direction: column; gap: 5px; }
+.leg-row { display: flex; align-items: center; gap: 8px; font-size: 0.73rem; color: var(--text-dim); }
+.leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.leg-circle { width: 18px; height: 10px; border: 2px solid var(--accent); border-radius: 9px; flex-shrink: 0; background: transparent; }
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  width: 808px;
+  transition: background 0.35s, border-color 0.35s;
+}
+.cb {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+  border-radius: 8px;
+  width: 38px; height: 38px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+  user-select: none;
+}
+.cb:hover { background: var(--card-hover); }
+.cb.play { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); width: 48px; font-size: 1.1rem; }
+.cb.play:hover { opacity: 0.85; }
+.step-counter {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0 6px;
+  font-variant-numeric: tabular-nums;
+  font-family: 'JetBrains Mono', monospace;
+}
+.speed-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+input[type=range] {
+  -webkit-appearance: none; width: 90px; height: 4px;
+  background: var(--bar-bg); border-radius: 2px; outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 14px;
+  border-radius: 50%; background: var(--accent); cursor: pointer;
+}
+
+.compare {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  width: 808px;
+  transition: background 0.35s, border-color 0.35s;
+}
+.compare h2 {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.cmp-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.cmp-label { font-size: 0.8rem; color: var(--text); width: 110px; font-weight: 600; }
+.cmp-bar-wrap { flex: 1; height: 22px; background: var(--bar-bg); border-radius: 5px; overflow: hidden; position: relative; }
+.cmp-bar {
+  height: 100%; border-radius: 5px;
+  display: flex; align-items: center; padding-left: 8px;
+  font-size: 0.73rem; font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.cmp-bar.rand { background: linear-gradient(90deg, var(--bar-rand-start), var(--bar-rand-end)); color: var(--accent); }
+.cmp-bar.adv  { background: linear-gradient(90deg, var(--bar-adv-start), var(--bar-adv-end)); color: var(--red); }
+.cmp-note { font-size: 0.76rem; color: var(--text-muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<h1>Welzl's Randomized SEC Algorithm</h1>
+<p class="subtitle">Step through the algorithm — see why randomization matters</p>
+
+<div class="top-bar">
+  <div class="top-bar-left">
+    <div class="n-input-group">
+      <label>n =</label>
+      <input type="number" id="n-input" value="28" min="3" max="200">
+    </div>
+    <button class="btn-small" onclick="applyN()">Apply</button>
+    <button class="btn-small" onclick="resample()" title="Resample with same n">↻ Resample</button>
+  </div>
+  <div class="top-bar-right">
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Toggle light/dark mode">☀️</button>
+  </div>
+</div>
+
+<div class="main">
+  <canvas id="canvas" width="520" height="520"></canvas>
+
+  <div class="panel">
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-random" onclick="setMode('random')">🔀 Random</button>
+      <button class="mode-btn" id="btn-adversarial" onclick="setMode('adversarial')">⚠️ Adversarial</button>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Event</div>
+      <div class="event-box ev-init" id="event-box">Initializing…</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Progress</div>
+      <div class="stats">
+        <div class="stat-row">
+          <span class="stat-lbl">Step</span>
+          <span class="stat-val blue" id="st-step">0 / 0</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="stat-row" style="margin-top:6px">
+          <span class="stat-lbl">Points inserted</span>
+          <span class="stat-val" id="st-inserted">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-lbl">Inside (no update)</span>
+          <span class="stat-val green" id="st-inside">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-lbl">Outside → rebuild</span>
+          <span class="stat-val red" id="st-outside">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-lbl">Build() calls</span>
+          <span class="stat-val" id="st-build">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-lbl">Build₂() calls</span>
+          <span class="stat-val" id="st-build2">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Legend</div>
+      <div class="legend">
+        <div class="leg-row"><div class="leg-dot" style="background:var(--dot-default)"></div> Processed point</div>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--yellow)"></div> Current point</div>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--green)"></div> Inside — no rebuild</div>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--red)"></div> Outside — rebuild</div>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--gold);"></div> Support points</div>
+        <div class="leg-row"><div class="leg-circle"></div> Enclosing circle</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="cb" title="First" onclick="goTo(0)">⏮</div>
+  <div class="cb" title="Back" onclick="stepBy(-1)">◀</div>
+  <div class="cb play" id="play-btn" onclick="togglePlay()">▶</div>
+  <div class="cb" title="Forward" onclick="stepBy(1)">▶</div>
+  <div class="cb" title="Last" onclick="goTo(Infinity)">⏭</div>
+  <span class="step-counter" id="ctrl-step">Step 0 / 0</span>
+  <div class="speed-wrap">
+    Speed <input type="range" id="speed-slider" min="1" max="10" value="4">
+  </div>
+</div>
+
+<div class="compare">
+  <h2>Rebuild comparison (same points, different orderings)</h2>
+  <div class="cmp-row">
+    <div class="cmp-label">🔀 Random</div>
+    <div class="cmp-bar-wrap">
+      <div class="cmp-bar rand" id="cmp-rand" style="width:0%">–</div>
+    </div>
+  </div>
+  <div class="cmp-row">
+    <div class="cmp-label">⚠️ Adversarial</div>
+    <div class="cmp-bar-wrap">
+      <div class="cmp-bar adv" id="cmp-adv" style="width:0%">–</div>
+    </div>
+  </div>
+  <div class="cmp-note" id="cmp-note">Run the simulation to see both counts.</div>
+</div>
+
+<script>
+// ============================================================
+// Theme
+// ============================================================
+let isDark = true;
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? '' : 'light');
+  document.getElementById('theme-btn').textContent = isDark ? '☀️' : '🌙';
+  // Redraw canvas with current frame
+  const fr = activeTrace()[currentStep];
+  drawFrame(currentStep, fr.circle);
+}
+
+// ============================================================
+// Math helpers
+// ============================================================
+function dist(a, b) { return Math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2); }
+function circleFrom2(a, b) { return { cx:(a.x+b.x)/2, cy:(a.y+b.y)/2, r:dist(a,b)/2 }; }
+function circleFrom3(a, b, c) {
+  const ax=a.x, ay=a.y, bx=b.x, by=b.y, cx_=c.x, cy_=c.y;
+  const D = 2*(ax*(by-cy_) + bx*(cy_-ay) + cx_*(ay-by));
+  if (Math.abs(D) < 1e-10) return circleFrom2(a, b);
+  const a2=ax*ax+ay*ay, b2=bx*bx+by*by, c2=cx_*cx_+cy_*cy_;
+  const ux = (a2*(by-cy_) + b2*(cy_-ay) + c2*(ay-by)) / D;
+  const uy = (a2*(cx_-bx) + b2*(ax-cx_) + c2*(bx-ax)) / D;
+  return { cx:ux, cy:uy, r:Math.sqrt((ax-ux)**2+(ay-uy)**2) };
+}
+function inCircle(circ, p) { return Math.sqrt((p.x-circ.cx)**2+(p.y-circ.cy)**2) <= circ.r + 1e-9; }
+function lerpCircle(a, b, t) { return { cx:a.cx+(b.cx-a.cx)*t, cy:a.cy+(b.cy-a.cy)*t, r:a.r+(b.r-a.r)*t }; }
+
+// ============================================================
+// Seeded RNG (Mulberry32)
+// ============================================================
+function makeRng(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed>>>15, 1|seed);
+    t = t + Math.imul(t ^ t>>>7, 61|t) ^ t;
+    return ((t ^ t>>>14) >>> 0) / 4294967296;
+  };
+}
+
+// ============================================================
+// Point generation & ordering
+// ============================================================
+let N = 28;
+let seedCounter = 1337;
+let basePoints = [];
+let randomPts = [];
+let adversarialPts = [];
+
+function generatePoints(n, seed) {
+  const rng = makeRng(seed);
+  const pts = [];
+  // Keep points in [0.15, 0.85] so the SEC (which extends beyond the points) stays within canvas
+  for (let i = 0; i < n; i++)
+    pts.push({ x: 0.15 + rng()*0.70, y: 0.15 + rng()*0.70 });
+  return pts;
+}
+
+function makeAdversarial(pts) {
+  const cx = pts.reduce((s,p)=>s+p.x,0)/pts.length;
+  const cy = pts.reduce((s,p)=>s+p.y,0)/pts.length;
+  return [...pts].sort((a,b)=>((a.x-cx)**2+(a.y-cy)**2)-((b.x-cx)**2+(b.y-cy)**2));
+}
+
+function makeRandom(pts) {
+  const rng2 = makeRng(seedCounter * 7 + 9999);
+  const a = [...pts];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(rng2() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ============================================================
+// Welzl step recorder
+// ============================================================
+function runWelzl(pts) {
+  const frames = [];
+  const n = pts.length;
+  let buildCalls = 0, build2Calls = 0, cntInside = 0, cntOutside = 0;
+
+  function Build2(j, ii, ji) {
+    build2Calls++;
+    let c = circleFrom2(pts[ii], pts[ji]), sup = [ii, ji];
+    for (let k = 0; k < j; k++)
+      if (!inCircle(c, pts[k])) { c = circleFrom3(pts[ii], pts[ji], pts[k]); sup = [ii, ji, k]; }
+    return { circle: c, support: sup };
+  }
+
+  function Build(i, ii) {
+    buildCalls++;
+    let c = circleFrom2(pts[ii], pts[0]), sup = [ii, 0];
+    for (let j = 1; j < i; j++)
+      if (!inCircle(c, pts[j])) { const r = Build2(j, ii, j); c = r.circle; sup = r.support; }
+    return { circle: c, support: sup };
+  }
+
+  function push(type, curPt, upTo, circ, sup, msg) {
+    frames.push({ type, currentPoint:curPt, insertedUpTo:upTo, circle:{...circ}, support:[...sup], buildCalls, build2Calls, inside:cntInside, outside:cntOutside, message:msg });
+  }
+
+  let circ = circleFrom2(pts[0], pts[1]), sup = [0, 1];
+  push('init', -1, 1, circ, sup, 'Base case: circle through first 2 points');
+
+  for (let i = 2; i < n; i++) {
+    push('consider', i, i, circ, sup, `Checking point ${i+1} of ${n}…`);
+    if (inCircle(circ, pts[i])) {
+      cntInside++;
+      push('inside', i, i, circ, sup, `✓ Inside — no update (${cntInside} so far)`);
+    } else {
+      cntOutside++;
+      const res = Build(i, i);
+      circ = res.circle; sup = res.support;
+      push('outside', i, i, circ, sup, `✗ Outside! Rebuild #${cntOutside}`);
+    }
+  }
+  push('complete', -1, n-1, circ, sup, `Done! ${cntOutside} rebuilds / ${n-2} insertions (${Math.round(cntOutside/(n-2)*100)}%)`);
+  return frames;
+}
+
+// ============================================================
+// Build traces
+// ============================================================
+let traces = {};
+
+function rebuildTraces() {
+  randomPts = makeRandom(basePoints);
+  adversarialPts = makeAdversarial(basePoints);
+  traces = {
+    random: runWelzl(randomPts),
+    adversarial: runWelzl(adversarialPts),
+  };
+  updateCompare();
+}
+
+function updateCompare() {
+  const rf = traces.random[traces.random.length-1];
+  const af = traces.adversarial[traces.adversarial.length-1];
+  const maxR = Math.max(rf.outside, af.outside, 1);
+  const el_rand = document.getElementById('cmp-rand');
+  const el_adv = document.getElementById('cmp-adv');
+  el_rand.style.width = Math.max(3, rf.outside/maxR*95) + '%';
+  el_rand.textContent = `${rf.outside} rebuilds (${Math.round(rf.outside/Math.max(N-2,1)*100)}%)`;
+  el_adv.style.width = Math.max(3, af.outside/maxR*95) + '%';
+  el_adv.textContent = `${af.outside} rebuilds (${Math.round(af.outside/Math.max(N-2,1)*100)}%)`;
+  const ratio = Math.round(af.outside / Math.max(rf.outside, 1));
+  document.getElementById('cmp-note').textContent =
+    `Random: ~O(log n) rebuilds  ·  Adversarial: O(n) rebuilds — ${ratio}× more work`;
+}
+
+// ============================================================
+// State
+// ============================================================
+let currentMode = 'random';
+let currentStep = 0;
+let playing = false;
+let animTimer = null;
+let prevCircle = null;
+let lerpT = 1;
+let lerpAnimId = null;
+
+function activeTrace() { return traces[currentMode]; }
+function activePts() { return currentMode === 'random' ? randomPts : adversarialPts; }
+
+function setMode(m) {
+  stopPlay();
+  currentMode = m;
+  document.getElementById('btn-random').classList.toggle('active', m === 'random');
+  document.getElementById('btn-adversarial').classList.toggle('active', m === 'adversarial');
+  goTo(0);
+}
+
+// ============================================================
+// N input & resample
+// ============================================================
+function applyN() {
+  const val = parseInt(document.getElementById('n-input').value);
+  if (isNaN(val) || val < 3) { document.getElementById('n-input').value = N; return; }
+  const capped = Math.min(val, 200);
+  document.getElementById('n-input').value = capped;
+  N = capped;
+  seedCounter++;
+  basePoints = generatePoints(N, seedCounter);
+  stopPlay();
+  rebuildTraces();
+  currentStep = 0;
+  goTo(0);
+}
+
+function resample() {
+  seedCounter++;
+  basePoints = generatePoints(N, seedCounter);
+  stopPlay();
+  rebuildTraces();
+  currentStep = 0;
+  goTo(0);
+}
+
+document.getElementById('n-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') applyN();
+});
+
+// ============================================================
+// Canvas rendering
+// ============================================================
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const PAD = 38;
+const CW = canvas.width - 2*PAD;
+const CH = canvas.height - 2*PAD;
+
+function toC(x, y) { return { x: PAD + x*CW, y: PAD + (1-y)*CH }; }
+
+function getCSSVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function drawFrame(frameIdx, lerpedCircle) {
+  const pts = activePts();
+  const fr = activeTrace()[frameIdx];
+
+  const accentColor = getCSSVar('--accent');
+  const dotDefault = getCSSVar('--dot-default');
+  const dotPending = getCSSVar('--dot-pending');
+  const yellowColor = getCSSVar('--yellow');
+  const greenColor = getCSSVar('--green');
+  const redColor = getCSSVar('--red');
+  const goldColor = getCSSVar('--gold');
+  const textColor = getCSSVar('--text');
+  const canvasBg = getCSSVar('--canvas-bg');
+  const supportLabel = getCSSVar('--support-label');
+  const fillAlpha = parseFloat(getCSSVar('--circle-fill-alpha'));
+  const pulseAlpha = parseFloat(getCSSVar('--pulse-alpha'));
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Fill canvas background (for theme)
+  ctx.fillStyle = canvasBg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // Re-round corners visually
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-in';
+  roundRect(ctx, 0, 0, canvas.width, canvas.height, 14);
+  ctx.fill();
+  ctx.restore();
+
+  // Enclosing circle
+  if (lerpedCircle && lerpedCircle.r > 0) {
+    const cc = toC(lerpedCircle.cx, lerpedCircle.cy);
+    const cr = lerpedCircle.r * CW;
+    ctx.beginPath();
+    ctx.arc(cc.x, cc.y, cr, 0, Math.PI*2);
+    ctx.strokeStyle = accentColor;
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.85;
+    ctx.stroke();
+    ctx.globalAlpha = fillAlpha;
+    ctx.fillStyle = accentColor;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  const supportSet = new Set(fr.support);
+  const showLabels = N <= 60;
+
+  for (let i = 0; i <= fr.insertedUpTo; i++) {
+    const p = toC(pts[i].x, pts[i].y);
+    let color, radius = N > 80 ? 4 : 6, lineW = 0;
+
+    if (i === fr.currentPoint) {
+      switch (fr.type) {
+        case 'consider': color = yellowColor; radius = N > 80 ? 5 : 8; break;
+        case 'inside':   color = greenColor;  radius = N > 80 ? 5 : 8; break;
+        case 'outside':  color = redColor;    radius = N > 80 ? 5 : 8; break;
+        default:         color = textColor;   radius = N > 80 ? 4 : 7;
+      }
+    } else if (supportSet.has(i) && fr.type !== 'consider') {
+      color = goldColor;
+      radius = N > 80 ? 5 : 7;
+      lineW = 2;
+    } else {
+      color = dotDefault;
+      radius = N > 80 ? 3 : 5;
+    }
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, radius, 0, Math.PI*2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    if (lineW) {
+      ctx.strokeStyle = isDark ? '#fff8' : '#0004';
+      ctx.lineWidth = lineW;
+      ctx.stroke();
+    }
+
+    if (supportSet.has(i) && fr.type !== 'consider' && showLabels) {
+      ctx.fillStyle = supportLabel;
+      ctx.font = '600 10px "JetBrains Mono", monospace';
+      ctx.fillText(i+1, p.x + 9, p.y - 4);
+    }
+  }
+
+  // Pending points
+  for (let i = fr.insertedUpTo+1; i < pts.length; i++) {
+    const p = toC(pts[i].x, pts[i].y);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, N > 80 ? 2 : 3.5, 0, Math.PI*2);
+    ctx.fillStyle = dotPending;
+    ctx.fill();
+  }
+
+  // Pulse ring
+  if (fr.type === 'outside' && fr.currentPoint >= 0) {
+    const p = toC(pts[fr.currentPoint].x, pts[fr.currentPoint].y);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 14, 0, Math.PI*2);
+    ctx.strokeStyle = redColor;
+    ctx.globalAlpha = pulseAlpha;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+// ============================================================
+// UI updates
+// ============================================================
+const evMap = { init:'ev-init', consider:'ev-consider', inside:'ev-inside', outside:'ev-outside', complete:'ev-complete' };
+
+function updateUI(frameIdx) {
+  const fr = activeTrace()[frameIdx];
+  const total = activeTrace().length - 1;
+  const eb = document.getElementById('event-box');
+  eb.className = 'event-box ' + (evMap[fr.type] || 'ev-init');
+  eb.textContent = fr.message;
+  document.getElementById('st-step').textContent = `${frameIdx} / ${total}`;
+  document.getElementById('st-inserted').textContent = fr.insertedUpTo + 1;
+  document.getElementById('st-inside').textContent = fr.inside;
+  document.getElementById('st-outside').textContent = fr.outside;
+  document.getElementById('st-build').textContent = fr.buildCalls;
+  document.getElementById('st-build2').textContent = fr.build2Calls;
+  document.getElementById('prog-fill').style.width = (frameIdx / total * 100) + '%';
+  document.getElementById('ctrl-step').textContent = `Step ${frameIdx} / ${total}`;
+}
+
+// ============================================================
+// Lerp animation
+// ============================================================
+function startLerp(from, to) {
+  prevCircle = from; lerpT = 0;
+  if (lerpAnimId) cancelAnimationFrame(lerpAnimId);
+  function step() {
+    lerpT = Math.min(1, lerpT + 0.08);
+    const c = lerpCircle(prevCircle, to, lerpT < 1 ? lerpT*lerpT*(3-2*lerpT) : 1);
+    drawFrame(currentStep, c);
+    if (lerpT < 1) lerpAnimId = requestAnimationFrame(step);
+    else lerpAnimId = null;
+  }
+  requestAnimationFrame(step);
+}
+
+// ============================================================
+// Navigation
+// ============================================================
+function goTo(idx) {
+  const trace = activeTrace();
+  const newStep = Math.max(0, Math.min(trace.length-1, idx === Infinity ? trace.length-1 : idx));
+  const prevFr = trace[currentStep];
+  const newFr = trace[newStep];
+  currentStep = newStep;
+  updateUI(currentStep);
+  if (prevFr && (prevFr.circle.cx !== newFr.circle.cx || prevFr.circle.r !== newFr.circle.r))
+    startLerp(prevFr.circle, newFr.circle);
+  else
+    drawFrame(currentStep, newFr.circle);
+  if (playing && currentStep >= trace.length-1) stopPlay();
+}
+function stepBy(d) { goTo(currentStep + d); }
+
+// ============================================================
+// Autoplay
+// ============================================================
+function speedMs() {
+  const v = parseInt(document.getElementById('speed-slider').value);
+  return Math.round(1500 / v);
+}
+function togglePlay() { playing ? stopPlay() : startPlay(); }
+function startPlay() {
+  if (currentStep >= activeTrace().length-1) goTo(0);
+  playing = true;
+  document.getElementById('play-btn').textContent = '⏸';
+  function tick() {
+    if (!playing) return;
+    stepBy(1);
+    if (currentStep < activeTrace().length-1) animTimer = setTimeout(tick, speedMs());
+  }
+  animTimer = setTimeout(tick, speedMs());
+}
+function stopPlay() {
+  playing = false;
+  clearTimeout(animTimer);
+  document.getElementById('play-btn').textContent = '▶';
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight') stepBy(1);
+  else if (e.key === 'ArrowLeft') stepBy(-1);
+  else if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+});
+
+// ============================================================
+// Init
+// ============================================================
+basePoints = generatePoints(N, seedCounter);
+rebuildTraces();
+goTo(0);
+</script>
+</body>
+</html>
